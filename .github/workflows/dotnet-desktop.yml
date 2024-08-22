@@ -54,4 +54,4 @@ jobs:
         region: ${{ secrets.AWS_REGION }}
         task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
         image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
-        container-name: docker-aspnet-yb # Adjust according to your task definition
+        container-name: novo # Adjust according to your task definition
