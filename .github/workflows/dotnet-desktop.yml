@@ -1,4 +1,4 @@
-name: Build and Deploy Docker image to AWS ECS
+name: Build and Deploy to AWS ECS 
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
       - master
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out code
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set up .NET 8
@@ -18,35 +18,15 @@ jobs:
       with:
         dotnet-version: '8.x'
 
-    - name: Update and fix packages
-      run: |
-        sudo apt-get update
-        sudo apt-get upgrade -y
-        sudo apt-get dist-upgrade -y
-        sudo apt-get -f install
-
     - name: Install Docker
       run: |
         sudo apt-get update
-        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-        sudo apt-get update
         sudo apt-get install -y docker-ce
-
-    - name: Build .NET project
-      run: |
-        dotnet restore
-        dotnet build --configuration Release
-
-    - name: Publish .NET project
-      run: |
-        dotnet publish --configuration Release --output ./publish
 
     - name: Build Docker image
       run: |
-        docker build -t book-manager:latest .
-        
+        docker build -t cwm/book-manager:latest .
+
     - name: Configure AWS CLI
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -55,15 +35,15 @@ jobs:
         
     - name: Log in to AWS ECR
       run: |
-        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 211125447912.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
     - name: Tag Docker image
       run: |
-        docker tag book-manager:latest 211125447912.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
+        docker tag cwm/book-manager:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
 
-    - name: Push Docker image
+    - name: Push Docker image to ECR
       run: |
-        docker push 211125447912.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
+        docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
 
     - name: Deploy to ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -71,5 +51,7 @@ jobs:
         task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
         service: ${{ secrets.ECS_SERVICE }}
         cluster: ${{ secrets.ECS_CLUSTER }}
-        image: 211125447912.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
+        image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/meu-dotnet-app:latest
         region: ${{ secrets.AWS_REGION }}
+        desired-count: 1
+        wait-for-service-stability: true
