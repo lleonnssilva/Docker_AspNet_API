@@ -52,3 +52,6 @@ jobs:
           service: ${{ secrets.ECS_SERVICE }}
           cluster: ${{ secrets.ECS_CLUSTER }}
           image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
+          region: ${{ secrets.AWS_REGION }}
+          desired-count: 1
+          wait-for-service-stability: true
