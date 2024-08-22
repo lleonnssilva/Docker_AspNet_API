@@ -8,7 +8,7 @@ namespace DockerAspNet.API.Controllers
     {
         private static readonly string[] Summaries = new[]
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching", "Outros"
+            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching", "Outros", "NovoItem"
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
