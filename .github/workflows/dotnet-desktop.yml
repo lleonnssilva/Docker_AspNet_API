@@ -45,7 +45,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t meu-dotnet-app:latest .
+        docker build -t book-manager:latest .
         
     - name: Configure AWS CLI
       run: |
@@ -59,7 +59,7 @@ jobs:
 
     - name: Tag Docker image
       run: |
-        docker tag meu-dotnet-app:latest 211125447912.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
+        docker tag book-manager:latest 211125447912.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/cwm/book-manager:latest
 
     - name: Push Docker image
       run: |
